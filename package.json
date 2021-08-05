@@ -1,0 +1,28 @@
+{
+  "name": "robot-simulator",
+  "version": "1.0.0",
+  "description": "The application is a simulation of a toy robot moving on a square tabletop",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sloan-holzman/olympe.git"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.17.2",
+    "jest": "24.7.1"
+  },
+  "author": "Sloan Holzman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sloan-holzman/olympe/issues"
+  },
+  "homepage": "https://github.com/sloan-holzman/olympe#readme",
+  "dependencies": {
+    "inquirer": "^8.1.2"
+  }
+}
