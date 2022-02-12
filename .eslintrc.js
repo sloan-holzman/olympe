@@ -3,8 +3,7 @@ module.exports = {
   "rules":{
     "linebreak-style": 0,
     "no-underscore-dangle": "off",
-    "consistent-return": "off",
-    "max-len": ["warning", { "ignoreComments": true }]
+    "consistent-return": "off"
   },
   "overrides": [
       {

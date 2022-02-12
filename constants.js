@@ -31,10 +31,10 @@ const directionsMap = {
 };
 
 const commands = {
+  PLACE: 'place',
   MOVE: 'move',
   ...rotations,
   REPORT: 'report',
-  PLACE: 'place',
 };
 
 // number of units wide

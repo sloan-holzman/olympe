@@ -3,25 +3,27 @@ const {
   commands, directions,
 } = require('./constants');
 
-const name = 'command';
 
 /**
  * prompts the user via the command line to select an answer to a question
- * 
- * @param {*} {message, choices} - the 'message' (or prompt) you want asked and the choices you want presented
- * @returns the user selected value
+ *
+ * @param {*} {message, choices} - the 'message' (or prompt) you want asked
+ * / the 'choices' you want presented
+ * @returns the user selected choice
  */
 const askQuestion = async ({
   message,
   choices,
 }) => {
+  // the key the the user's choice can be accessed under (can be anything)
+  const ANSWER_KEY = 'any';
   const result = await inquirer.prompt({
     type: 'list',
-    name,
+    name: ANSWER_KEY,
     message,
     choices,
   });
-  return result[name];
+  return result[ANSWER_KEY];
 };
 
 

@@ -14,7 +14,6 @@ class Robot {
     this.f = (place && place.f) || directions.NORTH;
   }
 
-  // will put the toy robot on the table in position X,Y coordinates and f (facing) NORTH, SOUTH, EAST or WEST.
   place({ x, y, f }) {
     if (this.isValidPlacement({ x, y, f })) {
       this.isAlreadyPlaced = true;
@@ -105,7 +104,7 @@ class Robot {
    * _ _ _ _ S
    * _ _ _ _ _
    * _ _ _ _ _
-   * 
+   *
    */
   get tableDrawing() {
     return this.yCoordinateOptions.reverse().reduce((acc, y) => {
