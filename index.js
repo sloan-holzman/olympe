@@ -1,24 +1,29 @@
-const inquirer = require('inquirer');
-const Robot = require('./robot')
-// const prompt = require('prompt-sync')({sigint: true});
-// TODO: use inquirer (https://github.com/SBoudrias/Inquirer.js#installation) AND uninstall 'prompt-sync'
-// basically, create a multiple choice: move, left, right, report, place
-// if place, ask for x, y, and then give multiple choice for face (n, s, e, w)
-// then, just lowercase the responses
+const { getCommand, getPlacement } = require('./input-utils');
 
+const {
+  commands,
+} = require('./constants');
 
-const promptAndExecute = (robot) => {
-    // execute against robot
-    promptAndExecute(robot)
-}
+const Robot = require('./robot');
 
-const playGame = () => {
-    const robot = new Robot({xUnits: 5, yUnits: 5})
-    promptAndExecute(robot)
-}
+/**
+ * running this game will create a new robot and board
+ * and allow the user to move the robot around the board via the command line
+ * 
+ */
+const play = async (robot = new Robot()) => {
+  const command = await getCommand();
+  if (command === commands.PLACE) {
+    const placement = await getPlacement(robot);
+    robot.place(placement);
+  } else {
+    robot[command]();
+  }
+  play(robot);
+};
 
-module.exports = playGame
+module.exports = play;
 
 if (require.main === module) {
-    playGame();
+  play();
 }

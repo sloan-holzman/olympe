@@ -2,7 +2,9 @@ module.exports = {
   "extends": "airbnb-base",
   "rules":{
     "linebreak-style": 0,
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "consistent-return": "off",
+    "max-len": ["warning", { "ignoreComments": true }]
   },
   "overrides": [
       {

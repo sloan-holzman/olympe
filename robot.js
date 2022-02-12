@@ -1,93 +1,118 @@
-const {directions, rotations, DEFAULT_UNITS, directionsMap} = require('./constants')
+const {
+  directions, rotations, directionsMap, MAX_X, MAX_Y,
+} = require('./constants');
 
-// TODO: use yup schema validation and add tests around it
+const getCoordinateOptions = units => [...Array(units)].map((_x, i) => i);
 
-// The origin (0,0) can be considered to be the SOUTH WEST most corner
 class Robot {
-    constructor({xUnits, yUnits, place}) {
-        this.xUnits = xUnits || DEFAULT_UNITS
-        this.yUnits = yUnits || DEFAULT_UNITS
-        this.placeSet = !!place
-        this.x = (place && place.x) || 0
-        this.y = (place && place.y) || 0
-        this.f = (place && place.f) || directions.NORTH
+  constructor({ maxX, maxY, place } = {}) {
+    this.maxX = maxX || MAX_X;
+    this.maxY = maxY || MAX_Y;
+    this.isAlreadyPlaced = !!place;
+    this.x = (place && place.x) || 0;
+    this.y = (place && place.y) || 0;
+    this.f = (place && place.f) || directions.NORTH;
+  }
+
+  // will put the toy robot on the table in position X,Y coordinates and f (facing) NORTH, SOUTH, EAST or WEST.
+  place({ x, y, f }) {
+    if (this.isValidPlacement({ x, y, f })) {
+      this.isAlreadyPlaced = true;
+      this.x = x;
+      this.y = y;
+      this.f = f;
+    }
+  }
+
+  move() {
+    if (this.isAlreadyPlaced && this.moves[this.f].isOnBoard()) {
+      this.moves[this.f].execute();
+    }
+  }
+
+  left() {
+    this.rotate(rotations.LEFT);
+  }
+
+  right() {
+    this.rotate(rotations.RIGHT);
+  }
+
+  report() {
+    if (!this.isAlreadyPlaced) {
+      return;
     }
 
-    // PLACE will put the toy robot on the table in position X,Y and facing NORTH, SOUTH, EAST or WEST.
-    place({x, y, f}) {
-        this.validatePlace({x, y, f})
-        this.placeSet = true
-        this.x = x
-        this.y = y
-        this.f = f
-    }
+    const position = `${this.x},${this.y},${this.f}`;
+    // to view in command line
+    console.log(`${this.tableDrawing}\n${position}\n`);
+    const { x, y, f } = this;
+    // return for testing purposes
+    return { x, y, f };
+  }
 
-    validatePlace({x, y, f}) {
-        if (x < 0 || x > this.xUnits) {
-            // TODO: throw error
-        }
-        if (y < 0 || y > this.yUnits) {
-            // TODO: throw error
-        }
-        if (!Object.values(directions).includes(f)) {
-            // TODO: throw error
-        }
-    }
+  isValidPlacement({ x, y, f }) {
+    const isValidXCoordinate = Number.isInteger(x) && x >= 0 && x <= this.maxX;
+    const isValidYCoordinate = Number.isInteger(y) && y >= 0 && y <= this.maxY;
+    const isValidDirection = Object.values(directions).includes(f);
+    return isValidXCoordinate && isValidYCoordinate && isValidDirection;
+  }
 
-    move() {
-        if (this.placeSet && this.moves[this.f].isValid()) {
-            this.moves[this.f].action()
-        }
-    }
+  get moves() {
+    return {
+      [directions.NORTH]: {
+        isOnBoard: () => (this.y + 1) <= this.maxY,
+        execute: () => {
+          this.y = this.y + 1;
+        },
+      },
+      [directions.SOUTH]: {
+        isOnBoard: () => (this.y - 1) >= 0,
+        execute: () => {
+          this.y = this.y - 1;
+        },
+      },
+      [directions.EAST]: {
+        isOnBoard: () => (this.x + 1) <= this.maxX,
+        execute: () => { this.x = this.x + 1; },
+      },
+      [directions.WEST]: {
+        isOnBoard: () => (this.x - 1) >= 0,
+        execute: () => { this.x = this.x - 1; },
+      },
+    };
+  }
 
-    get moves() {
-        return {
-            [directions.NORTH]: {
-                isValid: () => (this.y + 1) <= this.yUnits,
-                action: () => this.y = this.y + 1
-            },
-            [directions.SOUTH]: {
-                isValid: () => (this.y - 1) >= 0,
-                action: () => this.y = this.y - 1
-            },
-            [directions.EAST]: {
-                isValid: () => (this.x + 1) <= this.xUnits,
-                action: () => this.x = this.x + 1
-            },
-            [directions.WEST]: {
-                isValid: () => (this.x - 1) >= 0,
-                action: () => this.x = this.x - 1
-            }
-        }
+  rotate(rotation) {
+    if (this.isAlreadyPlaced) {
+      this.f = directionsMap[this.f][rotation];
     }
+  }
 
-    rotate(rotation) {
-        if (this.placeSet) {
-            this.f = directionsMap[this.f][rotation]
-        }
-    }
+  get xCoordinateOptions() {
+    return getCoordinateOptions(this.maxX + 1);
+  }
 
-    left() {
-        this.rotate(rotations.LEFT)
-    }
+  get yCoordinateOptions() {
+    return getCoordinateOptions(this.maxY + 1);
+  }
 
-    right() {
-        this.rotate(rotations.RIGHT)
-
-    }
-
-    report() {
-        // TODO: should return value, not log it...the index.js file can log
-        // also, for bonus, should actually draw out the table...
-        /*
-            xxxxx
-            xxxxx
-            xxxxN
-            xxxxx
-            xxxxx
-         */
-        console.log(`x: ${this.x} / y: ${this.y} / f: ${this.f}`)
-    }
+  /**
+   * produces a drawing of the robots current position
+   * e.g. the following represents 4,2,S
+   * _ _ _ _ _
+   * _ _ _ _ _
+   * _ _ _ _ S
+   * _ _ _ _ _
+   * _ _ _ _ _
+   * 
+   */
+  get tableDrawing() {
+    return this.yCoordinateOptions.reverse().reduce((acc, y) => {
+      const row = this.xCoordinateOptions.reduce((r, x) => r + (this.x === x && this.y === y ? this.f.charAt(0) : '_'), '');
+      return `${acc + row}\n`;
+    }, '');
+  }
 }
 
-module.exports = Robot
+module.exports = Robot;
