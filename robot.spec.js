@@ -4,7 +4,7 @@ const {
 const Robot = require('./robot');
 
 // just to prevent logging to console when .report is called within tests
-jest.spyOn(console, 'log').mockImplementation(() => {});
+jest.spyOn(console, 'log').mockReturnValue(undefined);
 
 describe('ROBOT', () => {
   describe('examples from PROBLEM.md', () => {
@@ -97,6 +97,19 @@ describe('ROBOT', () => {
       const robot = new Robot();
       robot.place({ x: MAX_X, y: MAX_Y, f: 'right' });
       expect(robot.report()).toBeUndefined();
+    });
+  });
+
+  describe('tableDrawing', () => {
+    it('should return accurate drawing when robot is on board', () => {
+      const robot = new Robot();
+      robot.place({ x: 2, y: 3, f: directions.SOUTH });
+      expect(robot.tableDrawing).toStrictEqual('_____\n__S__\n_____\n_____\n_____\n');
+    });
+
+    it('should return undefined when robot is not on board', () => {
+      const robot = new Robot();
+      expect(robot.tableDrawing).toBeUndefined();
     });
   });
 });

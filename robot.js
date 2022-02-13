@@ -2,16 +2,17 @@ const {
   directions, rotations, directionsMap, MAX_X, MAX_Y,
 } = require('./constants');
 
-const getCoordinateOptions = units => [...Array(units)].map((_x, i) => i);
+// +1 because maxUnit is zero indexed
+const getCoordinateOptions = maxUnit => [...Array(maxUnit + 1)].map((_x, i) => i);
 
 class Robot {
-  constructor({ maxX, maxY, place } = {}) {
+  constructor({ maxX, maxY } = {}) {
     this.maxX = maxX || MAX_X;
     this.maxY = maxY || MAX_Y;
-    this.isAlreadyPlaced = !!place;
-    this.x = (place && place.x) || 0;
-    this.y = (place && place.y) || 0;
-    this.f = (place && place.f) || directions.NORTH;
+    this.isAlreadyPlaced = false;
+    this.x = 0;
+    this.y = 0;
+    this.f = directions.NORTH;
   }
 
   place({ x, y, f }) {
@@ -44,6 +45,7 @@ class Robot {
 
     const position = `${this.x},${this.y},${this.f}`;
     // to view in command line
+    // eslint-disable-next-line no-console
     console.log(`${this.tableDrawing}\n${position}\n`);
     const { x, y, f } = this;
     // return for testing purposes
@@ -89,11 +91,11 @@ class Robot {
   }
 
   get xCoordinateOptions() {
-    return getCoordinateOptions(this.maxX + 1);
+    return getCoordinateOptions(this.maxX);
   }
 
   get yCoordinateOptions() {
-    return getCoordinateOptions(this.maxY + 1);
+    return getCoordinateOptions(this.maxY);
   }
 
   /**
@@ -107,9 +109,18 @@ class Robot {
    *
    */
   get tableDrawing() {
-    return this.yCoordinateOptions.reverse().reduce((acc, y) => {
-      const row = this.xCoordinateOptions.reduce((r, x) => r + (this.x === x && this.y === y ? this.f.charAt(0) : '_'), '');
-      return `${acc + row}\n`;
+    const {
+      x, y, f, isAlreadyPlaced, yCoordinateOptions, xCoordinateOptions,
+    } = this;
+    if (!isAlreadyPlaced) {
+      return;
+    }
+    return yCoordinateOptions.reverse().reduce((drawing, yCoordinate) => {
+      const row = xCoordinateOptions.reduce((r, xCoordinate) => {
+        const isRobotCoordinates = x === xCoordinate && y === yCoordinate;
+        return r + (isRobotCoordinates ? f.charAt(0) : '_');
+      }, '');
+      return `${drawing + row}\n`;
     }, '');
   }
 }
